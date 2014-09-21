@@ -14,7 +14,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/ImageSearchAppTheme" >
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name" >
@@ -25,12 +25,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.codepath.startthread.imagesearch.activities.ImageDisplayActivity"
+            android:name=".activities.ImageDisplayActivity"
             android:label="@string/title_activity_image_display"
             android:parentActivityName=".activities.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codepath.startthread.imagesearch.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.codepath.startthread.imagesearch.activities.SearchFiltersActivity"
+            android:label="@string/title_activity_search_filters" >
         </activity>
     </application>
 
