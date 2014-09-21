@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ImageSearch</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="image_search_hint">Enter search query</string>
+    <string name="search">Search</string>
+    <string name="image_results">Image Results</string>
+    <string name="title_activity_image_display">Full Image</string>
+    <string name="action_settings">Settings</string>
+
+</resources>
