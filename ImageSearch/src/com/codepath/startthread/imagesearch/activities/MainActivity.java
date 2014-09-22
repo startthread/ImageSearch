@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +24,8 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.codepath.startthread.imagesearch.R;
 import com.codepath.startthread.imagesearch.adapters.ImageResultsAdapter;
+import com.codepath.startthread.imagesearch.helpers.UiUtils;
+import com.codepath.startthread.imagesearch.models.ImageFilter;
 import com.codepath.startthread.imagesearch.models.ImageResult;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -38,6 +41,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	private GridView gvResults;
 	private List<ImageResult> imageResults;
 	private ImageResultsAdapter mAdapter;
+	private ImageFilter mFilter = new ImageFilter();
+	private String mQuery;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,16 +69,40 @@ public class MainActivity extends SherlockFragmentActivity {
 		});
 	}
 	
-	private void requestImages(String search) {
+	private String prepareUrl() {
+		// https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=android&rsz=4
+		final StringBuilder sb = new StringBuilder();
+		sb.append(QUERY_URL).append(mQuery).append(PAGES_PARAM);
+		
+		if (!ImageFilter.DEFAULT_VALUE.equals(mFilter.size)) {
+			sb.append("&imgsz=" + mFilter.size);
+		}
+		
+		if (!ImageFilter.DEFAULT_VALUE.equals(mFilter.color)) {
+			sb.append("&imgcolor=" + mFilter.color);
+		}
+		
+		if (!ImageFilter.DEFAULT_VALUE.equals(mFilter.type)) {
+			sb.append("&imgtype=" + mFilter.type);
+		}
+		
+		if (!ImageFilter.DEFAULT_VALUE.equals(mFilter.site)) {
+			sb.append("&as_sitesearch=" + mFilter.site);
+		}
+		
+		return sb.toString();
+	}
+	
+	private void requestImages() {
 		AsyncHttpClient client = new AsyncHttpClient();		
 		// https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=android&rsz=4
-		final String url = QUERY_URL + search + PAGES_PARAM;
+		final String url = prepareUrl();
+		
 		client.get(url, new JsonHttpResponseHandler() {
-
 			@Override
 			public void onFailure(int statusCode, Header[] headers, String responseString, 
 					Throwable throwable) {
-
+				Log.e(TAG, "Image search request failed", throwable);
 				super.onFailure(statusCode, headers, responseString, throwable);
 			}
 
@@ -101,14 +130,16 @@ public class MainActivity extends SherlockFragmentActivity {
 	    inflater.inflate(R.menu.main, menu);
 	    
 	    MenuItem searchItem = menu.findItem(R.id.action_search);	    
-	    SearchView searchView = (SearchView) searchItem.getActionView();
+	    final SearchView searchView = (SearchView) searchItem.getActionView();
 	    searchView.setQueryHint(getResources().getString(R.string.image_search_hint));
 	    //searchView.setIconifiedByDefault(false);
 	    searchView.setOnQueryTextListener(new OnQueryTextListener() {
 	       @Override
 	       public boolean onQueryTextSubmit(String query) {
-	    	   	requestImages(query);
-	            return true;
+	    	   UiUtils.hideSoftKeyboard(MainActivity.this, searchView);
+	    	   mQuery = query;
+	    	   requestImages();
+	           return true;
 	       }
 
 	       @Override
@@ -130,5 +161,15 @@ public class MainActivity extends SherlockFragmentActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == REQUEST_FILTER) {
+			if (resultCode == Activity.RESULT_OK) {
+				mFilter = data.getParcelableExtra(SearchFiltersActivity.EXTRA_FILTER);
+				requestImages();
+			}
+		}
+		
+	}
 }

@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:layout_marginTop="4dp" >
     
     <ImageView
         android:id="@+id/ivImage"
@@ -10,12 +11,15 @@
         android:layout_height="75dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/image_results"
-        android:scaleType="fitXY" />
+        android:scaleType="fitXY"
+        android:layout_gravity="center_horizontal" />
 
     <TextView 
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="12sp"
         android:maxLines="2"
         android:ellipsize="end" />
     

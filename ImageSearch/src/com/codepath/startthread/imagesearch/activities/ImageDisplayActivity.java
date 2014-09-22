@@ -1,16 +1,16 @@
 package com.codepath.startthread.imagesearch.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ImageView;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.codepath.startthread.imagesearch.R;
 import com.codepath.startthread.imagesearch.models.ImageResult;
 import com.squareup.picasso.Picasso;
 
-public class ImageDisplayActivity extends Activity {
+public class ImageDisplayActivity extends SherlockFragmentActivity {
 
 	public static final String EXTRA_IMAGE_RESULT = "image_result";
 	
@@ -19,7 +19,7 @@ public class ImageDisplayActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_display);
 		
-		getActionBar().hide();
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		final ImageResult imageResult = getIntent().getParcelableExtra(EXTRA_IMAGE_RESULT);
 		final ImageView ivImageResult = (ImageView) findViewById(R.id.ivImageResult);
@@ -29,7 +29,7 @@ public class ImageDisplayActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.image_display, menu);
+		getSupportMenuInflater().inflate(R.menu.image_display, menu);
 		return true;
 	}
 
