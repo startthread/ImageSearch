@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -25,6 +26,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.codepath.startthread.imagesearch.R;
 import com.codepath.startthread.imagesearch.adapters.ImageResultsAdapter;
 import com.codepath.startthread.imagesearch.custom.EndlessScrollListener;
+import com.codepath.startthread.imagesearch.helpers.NetworkUtils;
 import com.codepath.startthread.imagesearch.helpers.UiUtils;
 import com.codepath.startthread.imagesearch.models.ImageFilter;
 import com.codepath.startthread.imagesearch.models.ImageResult;
@@ -73,7 +75,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		gvResults.setOnScrollListener(new EndlessScrollListener() {
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
-				requestImages(page);
+				requestImageSearch(page);
 			}
 		});
 	}
@@ -106,7 +108,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		return sb.toString();
 	}
 	
-	private void requestImages(int page) {
+	private void requestImageSearch(int page) {
 		AsyncHttpClient client = new AsyncHttpClient();		
 		// https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=android&rsz=4
 		final String url = prepareUrl(page);
@@ -115,6 +117,9 @@ public class MainActivity extends SherlockFragmentActivity {
 			public void onFailure(int statusCode, Header[] headers, String responseString, 
 					Throwable throwable) {
 				Log.e(TAG, "Image search request failed", throwable);
+				if (!NetworkUtils.isNetworkAvailable(MainActivity.this)) {
+					Toast.makeText(MainActivity.this, R.string.no_network_msg, Toast.LENGTH_SHORT).show();
+				}
 				super.onFailure(statusCode, headers, responseString, throwable);
 			}
 
@@ -150,10 +155,14 @@ public class MainActivity extends SherlockFragmentActivity {
 	    searchView.setOnQueryTextListener(new OnQueryTextListener() {
 	       @Override
 	       public boolean onQueryTextSubmit(String query) {
+				if (!NetworkUtils.isNetworkAvailable(MainActivity.this)) {
+					Toast.makeText(MainActivity.this, R.string.no_network_msg, Toast.LENGTH_SHORT).show();
+					return true;
+				}
 	    	   mAdapter.clear();
 	    	   UiUtils.hideSoftKeyboard(MainActivity.this, searchView);
 	    	   mQuery = query;
-	    	   requestImages(0);
+	    	   requestImageSearch(0);
 	           return true;
 	       }
 
@@ -182,7 +191,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		if (requestCode == REQUEST_FILTER) {
 			if (resultCode == Activity.RESULT_OK) {
 				mFilter = data.getParcelableExtra(SearchFiltersActivity.EXTRA_FILTER);
-				requestImages(0);
+				requestImageSearch(0);
 			}
 		}
 		
