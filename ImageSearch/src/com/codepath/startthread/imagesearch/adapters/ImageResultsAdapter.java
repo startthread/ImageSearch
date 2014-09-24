@@ -2,12 +2,14 @@ package com.codepath.startthread.imagesearch.adapters;
 
 import java.util.List;
 
+import com.codepath.startthread.imagesearch.helpers.UiUtils;
 import com.codepath.startthread.imagesearch.models.ImageResult;
 
 import com.codepath.startthread.imagesearch.R;
 import com.squareup.picasso.Picasso;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +20,11 @@ import android.widget.TextView;
 
 public class ImageResultsAdapter extends ArrayAdapter<ImageResult> {
 
+	private Point mDisplaySize;
+	
 	public ImageResultsAdapter(Context context, List<ImageResult> objects) {
 		super(context, R.layout.item_image_result, objects);
+		mDisplaySize = UiUtils.getDisplaySize(context);
 	}
 
 	@Override

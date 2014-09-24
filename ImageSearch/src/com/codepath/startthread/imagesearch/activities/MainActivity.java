@@ -24,6 +24,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.codepath.startthread.imagesearch.R;
 import com.codepath.startthread.imagesearch.adapters.ImageResultsAdapter;
+import com.codepath.startthread.imagesearch.custom.EndlessScrollListener;
 import com.codepath.startthread.imagesearch.helpers.UiUtils;
 import com.codepath.startthread.imagesearch.models.ImageFilter;
 import com.codepath.startthread.imagesearch.models.ImageResult;
@@ -34,8 +35,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 	private static final String TAG = "MainActivity";
 	private static final String QUERY_URL = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=";
-	private static final String PAGES_PARAM =  "&rsz=8";
-	
+	private static final int PAGE_ITEMS = 8;
+	private static final String PAGES_PARAM =  "&rsz="+PAGE_ITEMS;
+		
 	private static final int REQUEST_FILTER = 1;
 
 	private GridView gvResults;
@@ -67,9 +69,16 @@ public class MainActivity extends SherlockFragmentActivity {
 				startActivity(intent);
 			}
 		});
+		
+		gvResults.setOnScrollListener(new EndlessScrollListener() {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount) {
+				requestImages(page);
+			}
+		});
 	}
 	
-	private String prepareUrl() {
+	private String prepareUrl(int page) {
 		// https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=android&rsz=4
 		final StringBuilder sb = new StringBuilder();
 		sb.append(QUERY_URL).append(mQuery).append(PAGES_PARAM);
@@ -90,14 +99,17 @@ public class MainActivity extends SherlockFragmentActivity {
 			sb.append("&as_sitesearch=" + mFilter.site);
 		}
 		
+		final int pg = (page > 0 ? page -1 : 0);
+		sb.append("&start=" + pg * PAGE_ITEMS);
+		Log.v(TAG, "Loading page: " + pg);
+		Log.v(TAG, sb.toString());
 		return sb.toString();
 	}
 	
-	private void requestImages() {
+	private void requestImages(int page) {
 		AsyncHttpClient client = new AsyncHttpClient();		
 		// https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=android&rsz=4
-		final String url = prepareUrl();
-		
+		final String url = prepareUrl(page);
 		client.get(url, new JsonHttpResponseHandler() {
 			@Override
 			public void onFailure(int statusCode, Header[] headers, String responseString, 
@@ -108,13 +120,15 @@ public class MainActivity extends SherlockFragmentActivity {
 
 			@Override
 			public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-				// responseData -> results[]
+				// responseData -> results[x]
 				try {
-					JSONArray imageResultsJSON = response.getJSONObject("responseData").getJSONArray("results");
-					imageResults.clear();
-					//imageResults.addAll(ImageResult.fromJSONArray(imageResultsJSON));
-					mAdapter.addAll(ImageResult.fromJSONArray(imageResultsJSON));
-					//mAdapter.notifyDataSetChanged();
+					//Log.i(TAG, "result" + response.toString());					
+					if (response.optJSONObject("responseData") != null) {
+						JSONArray imageResultsJSON = response.getJSONObject(
+								"responseData").getJSONArray("results");
+						mAdapter.addAll(ImageResult
+								.fromJSONArray(imageResultsJSON));
+					}
 					
 				} catch (JSONException e) {
 					Log.e(TAG, "Error while parsing JSON result", e);
@@ -136,9 +150,10 @@ public class MainActivity extends SherlockFragmentActivity {
 	    searchView.setOnQueryTextListener(new OnQueryTextListener() {
 	       @Override
 	       public boolean onQueryTextSubmit(String query) {
+	    	   mAdapter.clear();
 	    	   UiUtils.hideSoftKeyboard(MainActivity.this, searchView);
 	    	   mQuery = query;
-	    	   requestImages();
+	    	   requestImages(0);
 	           return true;
 	       }
 
@@ -167,7 +182,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		if (requestCode == REQUEST_FILTER) {
 			if (resultCode == Activity.RESULT_OK) {
 				mFilter = data.getParcelableExtra(SearchFiltersActivity.EXTRA_FILTER);
-				requestImages();
+				requestImages(0);
 			}
 		}
 		
