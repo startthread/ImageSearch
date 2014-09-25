@@ -159,9 +159,9 @@ public class MainActivity extends SherlockFragmentActivity {
 					Toast.makeText(MainActivity.this, R.string.no_network_msg, Toast.LENGTH_SHORT).show();
 					return true;
 				}
-	    	   mAdapter.clear();
 	    	   UiUtils.hideSoftKeyboard(MainActivity.this, searchView);
 	    	   mQuery = query;
+	    	   mAdapter.clear();
 	    	   requestImageSearch(0);
 	           return true;
 	       }
@@ -191,6 +191,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		if (requestCode == REQUEST_FILTER) {
 			if (resultCode == Activity.RESULT_OK) {
 				mFilter = data.getParcelableExtra(SearchFiltersActivity.EXTRA_FILTER);
+				mAdapter.clear();
 				requestImageSearch(0);
 			}
 		}

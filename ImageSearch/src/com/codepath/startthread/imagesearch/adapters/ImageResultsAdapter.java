@@ -20,32 +20,43 @@ import android.widget.TextView;
 
 public class ImageResultsAdapter extends ArrayAdapter<ImageResult> {
 
-	private Point mDisplaySize;
-	
 	public ImageResultsAdapter(Context context, List<ImageResult> objects) {
 		super(context, R.layout.item_image_result, objects);
-		mDisplaySize = UiUtils.getDisplaySize(context);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		final ImageResult item = getItem(position);
 		
+//		ImageResultItemView itemView = (ImageResultItemView) convertView;
+//		if (itemView == null) {
+//			itemView = ImageResultItemView.inflate(parent);
+//		}
+//		
+//		itemView.setItem(getItem(position));		
+//		
+		final ImageResult item = getItem(position);
+		ViewHolder holder = null;
 		if (convertView == null) {
 			convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_image_result, parent, false);
+			holder = new ViewHolder();
+			holder.imageView = (ImageView) convertView.findViewById(R.id.ivImage);
+			holder.textView = (TextView) convertView.findViewById(R.id.tvTitle);
+			convertView.setTag(holder);
+		} else {
+			holder = (ViewHolder) convertView.getTag();
 		}
 		
-		ImageView ivImage = (ImageView) convertView.findViewById(R.id.ivImage);
-		TextView tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
-		
-		tvTitle.setText(Html.fromHtml(item.title));
+		holder.textView.setText(Html.fromHtml(item.title));
 		
 		// clear image from last time and download new one
-		ivImage.setImageResource(0);
-		Picasso.with(getContext()).load(item.thumbUrl).into(ivImage);
+		holder.imageView.setImageResource(0);
+		Picasso.with(getContext()).load(item.thumbUrl).into(holder.imageView);
 		
 		return convertView;
 	}
 
-	
+	public static class ViewHolder {
+		public ImageView imageView;
+		public TextView textView;
+	}
 }
