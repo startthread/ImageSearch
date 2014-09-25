@@ -1,7 +1,7 @@
-ImageSearch
-===========
+Image Search
+============
 
-Hours to complete: 12 hrs
+Hours to implement: 13 hrs
 
 Description:
 ------------
