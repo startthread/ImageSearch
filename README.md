@@ -1,8 +1,6 @@
 Image Search
 ============
 
-Hours to implement: 13 hrs
-
 Description:
 ------------
 Image search through Google Image API.
